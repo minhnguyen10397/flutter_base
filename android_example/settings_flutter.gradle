@@ -1,0 +1,23 @@
+// Flutter module inclusion script
+def flutterProjectRoot = file("flutter_host_app")
+def flutterProjectDir = file("${flutterProjectRoot}/.android/Flutter")
+
+// Include Flutter project
+include ":flutter"
+project(":flutter").projectDir = flutterProjectDir
+
+// Load Flutter plugin loader
+def localPropertiesFile = file("${flutterProjectRoot}/.android/local.properties")
+if (!localPropertiesFile.exists()) {
+    throw new GradleException("Flutter local.properties not found. Please run 'flutter pub get' in ${flutterProjectRoot}")
+}
+
+def properties = new Properties()
+localPropertiesFile.withReader("UTF-8") { reader -> properties.load(reader) }
+def flutterSdkPath = properties.getProperty("flutter.sdk")
+if (flutterSdkPath == null) {
+    throw new GradleException("flutter.sdk not set in local.properties")
+}
+
+apply from: "$flutterSdkPath/packages/flutter_tools/gradle/module_plugin_loader.gradle"
+
